@@ -1,35 +1,66 @@
 name: Build Local Voice Control APK
+
 on:
   workflow_dispatch:
   push:
-    branches: [main, master]
+    branches:
+      - main
+      - master
     paths:
       - 'voice-control/**'
       - '.github/workflows/android-apk.yml'
+
 permissions:
   contents: read
+
 jobs:
   build:
+    name: Build debug APK
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
     steps:
-      - name: Checkout source
+      - name: Check out repository
         uses: actions/checkout@v4
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+
+      - name: Set up Android SDK and accept licenses
+        uses: android-actions/setup-android@v4
+        with:
+          accept-android-sdk-licenses: true
+          log-accepted-android-sdk-licenses: false
+          packages: platform-tools
+
       - name: Set up Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+
+      - name: Check expected project files
+        run: |
+          test -f voice-control/settings.gradle
+          test -f voice-control/build.gradle
+          test -f voice-control/app/build.gradle
+          test -f voice-control/app/src/main/AndroidManifest.xml
+
       - name: Build debug APK
-        run: gradle -p voice-control assembleDebug --stacktrace
-      - name: Upload APK artifact
+        run: gradle -p voice-control assembleDebug --no-daemon --stacktrace
+
+      - name: Verify APK was created
+        run: |
+          APK_PATH="voice-control/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK_PATH"
+          ls -lh "$APK_PATH"
+
+      - name: Upload debug APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: local-voice-control-debug-apk
           path: voice-control/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+          retention-days: 14
