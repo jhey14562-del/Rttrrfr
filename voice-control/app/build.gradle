@@ -1,0 +1,16 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.example.localvoicecontrol'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.example.localvoicecontrol'
+        minSdk 23
+        targetSdk 32
+        versionCode 4
+        versionName '4.0'
+    }
+}
