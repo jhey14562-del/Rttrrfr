@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Local Voice Control</string>
+    <string name="accessibility_service_description">Runs explicit user-requested voice commands such as navigation, scrolling, tapping accessible text, and typing into a focused field.</string>
+</resources>
